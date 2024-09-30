@@ -5,13 +5,20 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   if (req.method !== 'POST') {
     return res.status(405).send({ message: 'Only POST requests allowed' });
   }
+  
+  console.log('Request Headers:', req.headers);
+  console.log('Request Headers:', req);
+  console.log('Request Headers:', req.body);
 
   // Extract data from the webhook payload
   const { sys, fields } = req.body;
 
+
+
   if (!sys || !fields) {
     return res.status(400).send({ message: 'Invalid webhook payload' });
   }
+
 
   if (fields.inStock['en-US'] !== true) {
     return res.status(200).send({ message: 'Product is not back in stock' });

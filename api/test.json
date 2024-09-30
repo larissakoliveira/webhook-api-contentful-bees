@@ -1,0 +1,85 @@
+{
+    "metadata": {
+      "tags": [],
+      "concepts": []
+    },
+    "fields": {
+      "name": {
+        "en-US": "Test 5 - YES inStock"
+      },
+      "image": {
+        "en-US": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Asset",
+            "id": "4pRusLyOgfNKN5fRylLtW5"
+          }
+        }
+      },
+      "description": {
+        "en-US": {
+          "data": {},
+          "content": [
+            {
+              "data": {},
+              "content": [
+                {
+                  "data": {},
+                  "marks": [],
+                  "value": "This product is ...",
+                  "nodeType": "text"
+                }
+              ],
+              "nodeType": "paragraph"
+            }
+          ],
+          "nodeType": "document"
+        }
+      },
+      "inStock": {
+        "en-US": true
+      }
+    },
+    "sys": {
+      "type": "Entry",
+      "id": "5VRykjgIFqPRQ71oqIkSsJ",
+      "space": {
+        "sys": {
+          "type": "Link",
+          "linkType": "Space",
+          "id": "yf6cr2bg58ys"
+        }
+      },
+      "environment": {
+        "sys": {
+          "id": "master",
+          "type": "Link",
+          "linkType": "Environment"
+        }
+      },
+      "contentType": {
+        "sys": {
+          "type": "Link",
+          "linkType": "ContentType",
+          "id": "product"
+        }
+      },
+      "createdBy": {
+        "sys": {
+          "type": "Link",
+          "linkType": "User",
+          "id": "0gHQ2vXr5qQx5WnnZ2cTjx"
+        }
+      },
+      "updatedBy": {
+        "sys": {
+          "type": "Link",
+          "linkType": "User",
+          "id": "0gHQ2vXr5qQx5WnnZ2cTjx"
+        }
+      },
+      "revision": 4,
+      "createdAt": "2024-09-27T13:02:06.743Z",
+      "updatedAt": "2024-09-30T18:05:00.931Z"
+    }
+  }
