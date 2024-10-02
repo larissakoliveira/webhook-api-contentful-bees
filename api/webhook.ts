@@ -115,37 +115,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  // Read and parse the request body
-  const body = await new Promise<string>((resolve, reject) => {
-    const chunks: Uint8Array[] = [];
-    req.body.on('data', (chunk: Uint8Array) => chunks.push(chunk));
-    req.body.on('end', () => resolve(Buffer.concat(chunks).toString()));
-    req.body.on('error', reject);
-  });
-
-  let payload: WebhookPayload;
-  try {
-    payload = JSON.parse(body); // Parse body to WebhookPayload type
-  } catch (error) {
-    console.error('Invalid JSON:', error);
-    return res.status(400).json({ message: 'Invalid JSON format' });
-  }
-
-  const { sys, fields } = payload;
+  // Directly access the request body, as Vercel parses it for you
+  const payload: WebhookPayload = req.body;
 
   // Check for valid payload
-  if (!sys || !fields) {
+  if (!payload.sys || !payload.fields) {
     return res.status(400).json({ message: 'Invalid webhook payload' });
   }
 
-  if (fields.inStock['en-US'] !== true) {
+  if (payload.fields.inStock['en-US'] !== true) {
     return res.status(200).json({ message: 'Product is not back in stock' });
   }
 
   try {
-    const productId = sys.id;
+    const productId = payload.sys.id;
     const emailRegistrations = await fetchEmailRegistrations(productId);
-    await sendNotificationEmails(emailRegistrations, fields.name['en-US']);
+    await sendNotificationEmails(emailRegistrations, payload.fields.name['en-US']);
     return res.status(200).json({ message: 'Emails sent successfully' });
   } catch (error) {
     console.error('Error processing webhook:', error);
