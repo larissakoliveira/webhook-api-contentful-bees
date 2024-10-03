@@ -206,11 +206,34 @@ async function sendNotificationEmails(emailRegistrations: EmailRegistration[], p
   const emailPromises = emailRegistrations.map(async (registration) => {
     try {
       await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: registration.email,
-        subject: `${productName} is Back in Stock!`,
-        text: `Hello! The product "${productName}" is now back in stock. Check it out on our website!`,
-      });
+  from: process.env.EMAIL_USER,
+  to: registration.email,
+  subject: `${productName} is Back in Stock!`,
+  html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px; background-color: #f9f9f9;">
+      <h2 style="color: #652911; text-align: center;">🎉 ${productName} is Back in Stock! 🎉</h2>
+      <div style="text-align: center;">
+        <img src="cid:beeImage" alt="Happy Bee" style="max-width: 150px; margin: 10px auto;" />
+      </div>
+      <p style="font-size: 16px; color: #333;">Hello!</p>
+      <p style="font-size: 16px; color: #333;">We’re buzzing with excitement to let you know that the product <strong>"${productName}"</strong> is now back in stock. Don't miss the chance to grab it!</p>
+      <div style="text-align: center; margin: 20px 0;">
+        <a href="https://yourwebsite.com/product/${productName}" style="padding: 10px 20px; background-color: #61892F; color: white; text-decoration: none; font-weight: bold; border-radius: 5px;">
+          Check it out!
+        </a>
+      </div>
+      <p style="font-size: 14px; color: #777; text-align: center;">Thank you for shopping with us!</p>
+    </div>
+  `,
+  attachments: [
+    {
+      filename: 'bee.gif',
+      path: './assets/bee.gif',
+      cid: 'beeImage',
+    },
+  ],
+});
+
 
       await deleteEmailRegistration(registration.entryId);
 
