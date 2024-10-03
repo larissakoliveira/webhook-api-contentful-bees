@@ -228,7 +228,7 @@ async function sendNotificationEmails(emailRegistrations: EmailRegistration[], p
   attachments: [
     {
       filename: 'bee.gif',
-      path: './assets/bee.gif',
+      path: '../assets/bee.gif',
       cid: 'beeImage',
     },
   ],
