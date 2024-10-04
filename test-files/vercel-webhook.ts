@@ -1,11 +1,12 @@
-import express, { Request, Response, Application } from 'express';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import path from 'path';
 
 dotenv.config();
 
-const requiredEnvVars = ['CONTENTFUL_SPACE_ID', 'CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API', 'EMAIL_USER', 'EMAIL_PASS'];
+// Ensure all necessary environment variables are set
+const requiredEnvVars = ['CONTENTFUL_SPACE_ID', 'VERCEL_CONTENTFUL_TOKEN_MANAGEMENT_API', 'EMAIL_USER', 'EMAIL_PASS'];
 requiredEnvVars.forEach((varName) => {
   if (!process.env[varName]) {
     console.error(`Missing environment variable: ${varName}`);
@@ -13,17 +14,7 @@ requiredEnvVars.forEach((varName) => {
   }
 });
 
-const app: Application = express();
-const PORT = 3000;
-
-// Middleware to parse JSON and handle CORS
-app.use(express.json());
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-});
-
+// Define the EmailRegistration interface
 interface EmailRegistration {
   email: string;
   relatedProduct: {
@@ -36,6 +27,7 @@ interface EmailRegistration {
   entryId: string;
 }
 
+// Define the WebhookPayload type
 type WebhookPayload = {
   metadata: {
     tags: any[];
@@ -117,38 +109,39 @@ type WebhookPayload = {
   };
 };
 
-app.post('/webhook', async (req: Request, res: Response) => {
-  if (!req.body) {
-    console.error('Invalid payload: Missing req.body');
-    return res.status(400).json({ message: 'Invalid webhook payload FIRST HERE' });
+// Main handler function
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Only accept POST requests
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { sys, fields }: WebhookPayload = req.body;
+  // Directly access the request body, as Vercel parses it for you
+  const payload: WebhookPayload = req.body;
 
-  if (!sys || !fields) {
-    return res.status(400).json({ message: 'Invalid webhook payload second HERE' });
+  // Check for valid payload
+  if (!payload.sys || !payload.fields) {
+    return res.status(400).json({ message: 'Invalid webhook payload' });
   }
 
-  if (fields.inStock['en-US'] !== true) {
+  if (payload.fields.inStock['en-US'] !== true) {
     return res.status(200).json({ message: 'Product is not back in stock' });
   }
 
   try {
-    const productId = sys.id;
+    const productId = payload.sys.id;
     const emailRegistrations = await fetchEmailRegistrations(productId);
-
-    await sendNotificationEmails(emailRegistrations, fields.name['en-US']);
-
+    await sendNotificationEmails(emailRegistrations, payload.fields.name['en-US']);
     return res.status(200).json({ message: 'Emails sent successfully' });
   } catch (error) {
     console.error('Error processing webhook:', error);
     return res.status(500).json({ message: 'Error processing webhook' });
   }
-});
+}
 
 async function fetchEmailRegistrations(productId: string): Promise<EmailRegistration[]> {
   const spaceId = process.env.CONTENTFUL_SPACE_ID;
-  const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API;
+  const accessToken = process.env.VERCEL_CONTENTFUL_TOKEN_MANAGEMENT_API;
 
   try {
     const response = await fetch(
@@ -178,9 +171,10 @@ async function fetchEmailRegistrations(productId: string): Promise<EmailRegistra
   }
 }
 
+// Function to delete an email registration
 async function deleteEmailRegistration(entryId: string) {
   const spaceId = process.env.CONTENTFUL_SPACE_ID;
-  const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API;
+  const accessToken = process.env.VERCEL_CONTENTFUL_TOKEN_MANAGEMENT_API;
 
   try {
     const response = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${entryId}`, {
@@ -200,6 +194,7 @@ async function deleteEmailRegistration(entryId: string) {
   }
 }
 
+// Function to send notification emails
 async function sendNotificationEmails(emailRegistrations: EmailRegistration[], productName: string) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -212,10 +207,10 @@ async function sendNotificationEmails(emailRegistrations: EmailRegistration[], p
   const emailPromises = emailRegistrations.map(async (registration) => {
     try {
       await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: registration.email,
-        subject: `${productName} is Back in Stock!`,
-        html: `
+  from: process.env.EMAIL_USER,
+  to: registration.email,
+  subject: `${productName} is Back in Stock!`,
+  html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px; background-color: #f9f9f9;">
       <h2 style="color: #652911; text-align: center;">🎉 ${productName} is Back in Stock! 🎉</h2>
       <div style="text-align: center;">
@@ -238,7 +233,8 @@ async function sendNotificationEmails(emailRegistrations: EmailRegistration[], p
       cid: 'beeImage',
     },
   ],
-      });
+});
+
 
       await deleteEmailRegistration(registration.entryId);
 
@@ -249,7 +245,3 @@ async function sendNotificationEmails(emailRegistrations: EmailRegistration[], p
 
   await Promise.all(emailPromises);
 }
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});

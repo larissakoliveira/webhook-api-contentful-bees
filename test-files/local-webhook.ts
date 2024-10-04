@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const requiredEnvVars = ['CONTENTFUL_SPACE_ID', 'CONTENTFUL_ACCESS_TOKEN_DELIVERY_API', 'EMAIL_USER', 'EMAIL_PASS'];
+const requiredEnvVars = ['CONTENTFUL_SPACE_ID', 'CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API', 'EMAIL_USER', 'EMAIL_PASS'];
 requiredEnvVars.forEach((varName) => {
   if (!process.env[varName]) {
     console.error(`Missing environment variable: ${varName}`);
@@ -147,7 +147,7 @@ app.post('/webhook', async (req: Request, res: Response) => {
 
 async function fetchEmailRegistrations(productId: string): Promise<EmailRegistration[]> {
   const spaceId = process.env.CONTENTFUL_SPACE_ID;
-  const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN_MANAGEMENT;
+  const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API;
 
   try {
     const response = await fetch(
@@ -179,7 +179,7 @@ async function fetchEmailRegistrations(productId: string): Promise<EmailRegistra
 
 async function deleteEmailRegistration(entryId: string) {
   const spaceId = process.env.CONTENTFUL_SPACE_ID;
-  const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN_MANAGEMENT;
+  const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API;
 
   try {
     const response = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${entryId}`, {
