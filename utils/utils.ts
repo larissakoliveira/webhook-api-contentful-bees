@@ -1,4 +1,4 @@
-import { EmailRegistration } from './types'
+import { EmailRegistration } from '../types/types'
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -89,7 +89,7 @@ export async function sendNotificationEmails(emailRegistrations: EmailRegistrati
 
 export async function deleteEmailRegistration(entryId: string) {
   const spaceId = process.env.CONTENTFUL_SPACE_ID;
-  const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API;
+  const accessToken = process.env.VERCEL_CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API;
 
   try {
     const response = await fetch(

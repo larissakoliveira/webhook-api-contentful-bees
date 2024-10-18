@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { fetchEmailRegistrations, sendNotificationEmails } from '../utils/utils';
-import { WebhookPayload } from '../utils/types';
+import { WebhookPayload } from '../types/types';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {

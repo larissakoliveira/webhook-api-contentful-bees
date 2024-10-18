@@ -1,6 +1,6 @@
 import { fetchEmailRegistrations, sendNotificationEmails } from '../utils/utils';
 import express, { Request, Response, Application } from 'express';
-import { WebhookPayload } from '../utils/types';
+import { WebhookPayload } from '../types/types';
 import dotenv from 'dotenv';
 
 dotenv.config();
