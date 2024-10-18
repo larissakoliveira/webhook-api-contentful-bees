@@ -12,7 +12,6 @@ app.use(express.json());
 
 app.post('/webhook', async (req: Request, res: Response) => {
   const payload: WebhookPayload = req.body;
-  console.log('Received payload:', JSON.stringify(payload, null, 2));
 
   if (!payload.sys || !payload.fields) {
     return res.status(400).json({ message: 'Invalid webhook payload' });
