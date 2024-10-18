@@ -6,9 +6,15 @@ import path from 'path';
 dotenv.config();
 
 export async function fetchEmailRegistrations(productId: string): Promise<EmailRegistration[]> {
-  const spaceId = process.env.CONTENTFUL_SPACE_ID;
+  const spaceId = process.env.VERCEL_CONTENTFUL_SPACE_ID;
   const accessToken = process.env.VERCEL_CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API;
 
+  console.log('Fetching email registrations with:', {
+    spaceId,
+    accessToken,
+    productId,
+  });
+  
   try {
     const response = await fetch(
       `https://api.contentful.com/spaces/${spaceId}/environments/master/entries?content_type=emailRegistration&fields.relatedProduct.sys.id=${productId}`,
@@ -88,7 +94,7 @@ export async function sendNotificationEmails(emailRegistrations: EmailRegistrati
   }
 
 export async function deleteEmailRegistration(entryId: string) {
-  const spaceId = process.env.CONTENTFUL_SPACE_ID;
+  const spaceId = process.env.VERCEL_CONTENTFUL_SPACE_ID;
   const accessToken = process.env.VERCEL_CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API;
 
   try {
