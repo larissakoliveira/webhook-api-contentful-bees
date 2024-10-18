@@ -8,12 +8,6 @@ dotenv.config();
 export async function fetchEmailRegistrations(productId: string): Promise<EmailRegistration[]> {
   const spaceId = process.env.VERCEL_CONTENTFUL_SPACE_ID;
   const accessToken = process.env.VERCEL_CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API;
-
-  console.log('Fetching email registrations with:', {
-    spaceId,
-    accessToken,
-    productId,
-  });
   
   try {
     const response = await fetch(
