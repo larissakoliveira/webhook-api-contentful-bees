@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node api/webhook.ts"
+    "dev": "ts-node api/localWebhook.ts",
+    "vercel": "vercel dev",
+    "deploy": "vercel --prod"
   },
   "keywords": [],
   "author": "",

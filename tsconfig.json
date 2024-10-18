@@ -7,6 +7,6 @@
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true
     },
-    "include": ["api/**/*.ts"]
+    "include": ["api/**/*.ts", "test-files/webhook.ts"]
   }
   
