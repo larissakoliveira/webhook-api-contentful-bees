@@ -16,6 +16,7 @@ This backend handles webhook events and sends notification emails when a product
 - **Vercel serverless functions** (for production deployment)
 - **Nodemailer** for sending emails
 - **Contentful** as a CMS for product management
+- **Ngrok** to expose your local development server to the internet to test the webhook locally
 
 ## Getting Started
 
