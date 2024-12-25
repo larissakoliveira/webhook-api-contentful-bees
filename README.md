@@ -45,8 +45,8 @@ This backend handles webhook events and sends notification emails when a product
    git clone https://github.com/your-username/honey-products-store-backend.git
    npm install
    npm start
-
-### Testing
+```
+## Testing
 
 The project uses Jest for testing. The following test commands are available:
 
