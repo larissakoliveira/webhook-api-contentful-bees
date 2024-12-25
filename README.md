@@ -18,6 +18,7 @@ This backend handles webhook events and sends notification emails when a product
 - **Contentful** as a CMS for product management
 - **Ngrok** to expose your local development server to the internet to test the webhook locally
 - **Jest** for application tests
+- **Winston** for logging errors
 
 ## Getting Started
 
