@@ -17,6 +17,7 @@ This backend handles webhook events and sends notification emails when a product
 - **Nodemailer** for sending emails
 - **Contentful** as a CMS for product management
 - **Ngrok** to expose your local development server to the internet to test the webhook locally
+- **Jest** for application tests
 
 ## Getting Started
 
@@ -45,7 +46,7 @@ This backend handles webhook events and sends notification emails when a product
    npm install
    npm start
 
-## Testing
+### Testing
 
 The project uses Jest for testing. The following test commands are available:
 
