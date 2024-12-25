@@ -49,7 +49,7 @@ export async function sendNotificationEmails(emailRegistrations: EmailRegistrati
     const emailPromises = emailRegistrations.map(async (registration) => {
       try {
         await transporter.sendMail({
-          from: process.env.EMAIL_USER,
+          from: `"Jeroen-Bee-Company" <${process.env.EMAIL_USER}>`,
           to: registration.email,
           subject: `${productName} is Terug op Voorraad!`,
           html: `
