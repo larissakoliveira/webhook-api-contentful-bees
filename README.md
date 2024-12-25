@@ -44,3 +44,33 @@ This backend handles webhook events and sends notification emails when a product
    git clone https://github.com/your-username/honey-products-store-backend.git
    npm install
    npm start
+
+## Testing
+
+The project uses Jest for testing. The following test commands are available:
+
+```bash
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+```
+Test files are located in the `tests` directory and follow the naming convention `*.test.ts`.
+
+## Logging
+
+The application uses Winston for logging. Logs are stored in the `logs` directory:
+
+- `logs/error.log`: Contains error-level logs
+- `logs/combined.log`: Contains all logs
+
+In development mode, logs are also output to the console.
+
+Log levels used:
+- `error`: For application errors
+- `warn`: For warning conditions
+- `info`: For general application information
