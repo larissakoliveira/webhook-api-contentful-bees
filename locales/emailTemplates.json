@@ -1,0 +1,31 @@
+{
+    "nl": {
+      "subject": "is terug op voorraad!",
+      "buttonText": "Bekijk het!",
+      "greeting": "Hallo!",
+      "message": "We zijn enthousiast om je te laten weten dat het product",
+      "thanks": "Bedankt voor uw aankoop!"
+    },
+    "pt": {
+      "subject": "está de volta ao estoque!",
+      "buttonText": "Confira agora!",
+      "greeting": "Olá!",
+      "message": "Estamos animados em informar que o produto",
+      "thanks": "Obrigado pela sua compra!"
+    },
+    "en": {
+      "subject": "is back in stock!",
+      "buttonText": "Check it out!",
+      "greeting": "Hello!",
+      "message": "We're excited to let you know that the product",
+      "thanks": "Thank you for your purchase!"
+    },
+    "de": {
+      "subject": "ist wieder auf lager!",
+      "buttonText": "Jetzt ansehen!",
+      "greeting": "Hallo!",
+      "message": "Wir freuen uns, Ihnen mitteilen zu können, dass das Produkt",
+      "thanks": "Vielen Dank für Ihren Einkauf!"
+    }
+  }
+  
