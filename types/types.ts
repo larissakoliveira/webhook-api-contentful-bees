@@ -97,3 +97,10 @@ export interface EmailRegistration {
       updatedAt: string;
     };
   };
+
+  export interface productNameLanguage {
+    en: string;
+    nl: string;
+    pt: string;
+    de: string;
+}

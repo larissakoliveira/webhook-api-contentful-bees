@@ -1,4 +1,4 @@
-import { EmailRegistration } from '../types/types'
+import { EmailRegistration, productNameLanguage } from '../types/types'
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -69,7 +69,7 @@ export async function fetchEmailRegistrations(productId: string): Promise<EmailR
       email: item.fields.email['en-US'],
       relatedProduct: item.fields.relatedProduct['en-US'],
       entryId: item.sys.id,
-      language: item.fields.language?.['en-US'] || 'nl' // Default to Dutch if no language specified
+      language: item.fields.language?.['en-US'] || 'nl'
     }));
   } catch (error) {
     console.error('Error fetching email registrations:', error);
@@ -77,7 +77,7 @@ export async function fetchEmailRegistrations(productId: string): Promise<EmailR
   }
 }
 
-export async function sendNotificationEmails(emailRegistrations: EmailRegistration[], productName: string) {
+export async function sendNotificationEmails(emailRegistrations: EmailRegistration[], productNames: productNameLanguage) {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -89,7 +89,8 @@ export async function sendNotificationEmails(emailRegistrations: EmailRegistrati
     const emailPromises = emailRegistrations.map(async (registration) => {
       try {
         const template = emailTemplates[registration.language] || emailTemplates.nl;
-        
+        const productName = productNames[registration.language as keyof productNameLanguage] || productNames.nl;
+
         await transporter.sendMail({
           from: `"Jeroen-Bee-Company" <${process.env.EMAIL_USER}>`,
           to: registration.email,
