@@ -1,6 +1,6 @@
 # Backend for Bee Product Notification App
 
-This backend handles webhook events and sends notification emails when a product is back in stock. It is designed to work with **Contentful** for product management and uses **Nodemailer** for sending emails. The backend runs on **Express.js** for local development and uses **Vercel's serverless functions** in the production environment.
+This backend handles webhook events and sends notification emails when a product is back in stock. It is designed to work with **Contentful** for product management and uses **Nodemailer** for sending emails. The backend runs on **Express.js** for local development and uses **Vercel's serverless functions** in the production environment. [Frontend for this application](https://github.com/devFullMates/bee-app)
 
 ## Features
 
