@@ -1,3 +1,12 @@
+type LanguageCode = 'nl' | 'pt' | 'en' | 'de';
+
+export interface productNameLanguage {
+  en: string;
+  nl: string;
+  pt: string;
+  de: string;
+}  
+
 export interface EmailRegistration {
     email: string;
     relatedProduct: {
@@ -8,7 +17,7 @@ export interface EmailRegistration {
       };
     };
     entryId: string;
-    language: string;
+    language: LanguageCode;
   }
   
   export type WebhookPayload = {
@@ -97,10 +106,3 @@ export interface EmailRegistration {
       updatedAt: string;
     };
   };
-
-  export interface productNameLanguage {
-    en: string;
-    nl: string;
-    pt: string;
-    de: string;
-}

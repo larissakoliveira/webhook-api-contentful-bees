@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { fetchEmailRegistrations, sendNotificationEmails } from '../utils/utils';
-import { WebhookPayload } from '../types/types';
+import { WebhookPayload, productNameLanguage } from '../types/types';
 import logger from '../utils/logger';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -18,23 +18,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ message: 'Invalid webhook payload' });
   }
 
-  if (payload.fields.inStock['en-US'] !== true) {
+  const inStock = payload.fields.inStock?.['en-US'];
+  if (inStock !== true) {
     logger.info('Product is not back in stock', { productId: payload.sys.id });
     return res.status(200).json({ message: 'Product is not back in stock' });
   }
 
+  const productNames: productNameLanguage = {
+    en: payload.fields.productNameEnglish?.['en-US'] || '',
+    nl: payload.fields.productNameDutch?.['en-US'] || '',
+    pt: payload.fields.productNamePortuguese?.['en-US'] || '',
+    de: payload.fields.productNameGerman?.['en-US'] || '',
+  };
+
+  if (!payload.sys.id || !Object.values(productNames).every(Boolean)) {
+    logger.error('Product ID or names are missing', { payload });
+    return res.status(400).json({ message: 'Product ID or names are missing' });
+  }
+
   try {
     const productId = payload.sys.id;
-    const productNameDutch = payload.fields.productNameDutch?.['en-US'];
     
     logger.info('Fetching email registrations', { productId });
     const emailRegistrations = await fetchEmailRegistrations(productId);
-    
-    logger.info('Sending notification emails', { 
+
+    logger.info('Sending notification emails', {
       productId,
-      emailCount: emailRegistrations.length 
+      emailCount: emailRegistrations.length
     });
-    await sendNotificationEmails(emailRegistrations, productNameDutch);
+    await sendNotificationEmails(emailRegistrations, productNames);
     
     logger.info('Emails sent successfully', {
       productId,
