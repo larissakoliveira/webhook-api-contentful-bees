@@ -8,6 +8,7 @@ export interface EmailRegistration {
       };
     };
     entryId: string;
+    language: string;
   }
   
   export type WebhookPayload = {
@@ -96,4 +97,3 @@ export interface EmailRegistration {
       updatedAt: string;
     };
   };
-  

@@ -4,7 +4,7 @@ This backend handles webhook events and sends notification emails when a product
 
 ## Features
 
-- Webhook handler for product stock status changes.
+- Webhook handler for product stock status changes. (https://webhook-api-contentful-bees.vercel.app/api/vercelWebhook) Contentful
 - Sends notification emails when a product is back in stock.
 - Local development uses Express.js.
 - Production uses Vercel serverless functions.
@@ -45,8 +45,11 @@ This backend handles webhook events and sends notification emails when a product
    ```bash
    git clone https://github.com/your-username/honey-products-store-backend.git
    npm install
-   npm start
+   npm run dev
 ```
+
+To run locally, after running with `npm run dev`, use this command: `ngrok http 3000`, and copy its forwarding URL into the Contentful webhook settings by replacing the Vercel URL (e.g., [https://webhook-api-contentful-bees.vercel.app/api/vercelWebhook]) with your ngrok URL generated for local development (e.g., `https://<forwarding-ngrok-url>/webhook`).
+
 ## Testing
 
 The project uses Jest for testing. The following test commands are available:

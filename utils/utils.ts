@@ -5,6 +5,45 @@ import path from 'path';
 
 dotenv.config();
 
+interface EmailTemplate {
+  subject: string;
+  buttonText: string;
+  greeting: string;
+  message: string;
+  thanks: string;
+}
+
+const emailTemplates: Record<string, EmailTemplate> = {
+  nl: {
+    subject: "is terug op voorraad!",
+    buttonText: "Bekijk het!",
+    greeting: "Hallo!",
+    message: "We zijn enthousiast om je te laten weten dat het product",
+    thanks: "Bedankt voor uw aankoop!"
+  },
+  pt: {
+    subject: "está de volta ao estoque!",
+    buttonText: "Confira agora!",
+    greeting: "Olá!",
+    message: "Estamos animados em informar que o produto",
+    thanks: "Obrigado pela sua compra!"
+  },
+  en: {
+    subject: "is back in stock!",
+    buttonText: "Check it out!",
+    greeting: "Hello!",
+    message: "We're excited to let you know that the product",
+    thanks: "Thank you for your purchase!"
+  },
+  de: {
+    subject: "ist wieder auf lager!",
+    buttonText: "Jetzt ansehen!",
+    greeting: "Hallo!",
+    message: "Wir freuen uns, Ihnen mitteilen zu können, dass das Produkt",
+    thanks: "Vielen Dank für Ihren Einkauf!"
+  }
+};
+
 export async function fetchEmailRegistrations(productId: string): Promise<EmailRegistration[]> {
   const spaceId = process.env.VERCEL_CONTENTFUL_SPACE_ID;
   const accessToken = process.env.VERCEL_CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API;
@@ -30,6 +69,7 @@ export async function fetchEmailRegistrations(productId: string): Promise<EmailR
       email: item.fields.email['en-US'],
       relatedProduct: item.fields.relatedProduct['en-US'],
       entryId: item.sys.id,
+      language: item.fields.language?.['en-US'] || 'nl' // Default to Dutch if no language specified
     }));
   } catch (error) {
     console.error('Error fetching email registrations:', error);
@@ -48,35 +88,37 @@ export async function sendNotificationEmails(emailRegistrations: EmailRegistrati
   
     const emailPromises = emailRegistrations.map(async (registration) => {
       try {
+        const template = emailTemplates[registration.language] || emailTemplates.nl;
+        
         await transporter.sendMail({
           from: `"Jeroen-Bee-Company" <${process.env.EMAIL_USER}>`,
           to: registration.email,
-          subject: `${productName} is Terug op Voorraad!`,
+          subject: `${productName} ${template.subject}`,
           html: `
        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px; background-color: #f9f9f9;">
-        <h2 style="color: #652911; text-align: center;">🎉 ${productName} is Terug op Voorraad! 🎉</h2>
+        <h2 style="color: #652911; text-align: center;">🎉 ${productName} ${template.subject} 🎉</h2>
         <div style="text-align: center;">
-          <img src="cid:beeImage" alt="Gelukkige Bij" style="max-width: 150px; margin: 10px auto;" />
+          <img src="cid:beeImage" alt="Happy Bee" style="max-width: 150px; margin: 10px auto;" />
         </div>
-        <p style="font-size: 16px; color: #333;">Hallo!</p>
-        <p style="font-size: 16px; color: #333;">We zijn enthousiast om je te laten weten dat het product <strong>"${productName}"</strong> nu terug op voorraad is. Mis deze kans niet!</p>
+        <p style="font-size: 16px; color: #333;">${template.greeting}</p>
+        <p style="font-size: 16px; color: #333;">${template.message} <strong>"${productName}"</strong> ${template.subject}</p>
         <div style="text-align: center; margin: 20px 0;">
           <a href="https://yourwebsite.com/product/${productName}" style="padding: 10px 20px; background-color: #61892F; color: white; text-decoration: none; font-weight: bold; border-radius: 5px;">
-            Bekijk het!
+            ${template.buttonText}
           </a>
         </div>
-        <p style="font-size: 14px; color: #777; text-align: center;">Bedankt voor uw aankoop!</p>
+        <p style="font-size: 14px; color: #777; text-align: center;">${template.thanks}</p>
       </div>
     `,
-    attachments: [
-      {
-        filename: 'bee.gif',
-        path: path.join(__dirname, '../assets/bee.gif'), 
-        cid: 'beeImage',
-      },
-    ],
+          attachments: [
+            {
+              filename: 'bee.gif',
+              path: path.join(__dirname, '../assets/bee.gif'),
+              cid: 'beeImage',
+            },
+          ],
         });
-  
+
         await deleteEmailRegistration(registration.entryId);
   
       } catch (error) {
