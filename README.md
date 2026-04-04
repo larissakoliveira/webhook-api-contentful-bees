@@ -38,9 +38,8 @@ This backend handles webhook events and sends notification emails when a product
 |----------------------------------------------------|-------------------------------------------------------------|
 | `EMAIL_USER`                                       | The email address used to send notifications                 |
 | `EMAIL_PASS`                                       | The password for the email account used to send notifications|
-| `VERCEL_CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API`     | Contentful management API token for Vercel deployment        |
-| `CONTENTFUL_SPACE_ID`                              | The Contentful space ID for accessing the CMS                |
-| `CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API`           | Contentful management API token for local development        |
+| `CONTENTFUL_SPACE_ID`                              | Contentful space ID (set this on Vercel too)                    |
+| `CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API`           | Contentful **management** (CMA) token — required locally **and** on Vercel under this exact name |
 
    ```bash
    git clone https://github.com/your-username/honey-products-store-backend.git

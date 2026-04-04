@@ -61,10 +61,29 @@ describe('Webhook Handler', () => {
     });
   });
 
+  const fullProductNames = {
+    productNameEnglish: { 'en-US': 'Test EN' },
+    productNameDutch: { 'en-US': 'Test NL' },
+    productNamePortuguese: { 'en-US': 'Test PT' },
+    productNameGerman: { 'en-US': 'Test DE' },
+  };
+
+  const nlEnOnlyNames = {
+    productNameEnglish: { 'en-US': 'Test EN' },
+    productNameDutch: { 'en-US': 'Test NL' },
+  };
+
   it('should process webhook and send emails when product is in stock', async () => {
-    const mockEmails = ['test@example.com'];
-    (fetchEmailRegistrations as jest.Mock).mockResolvedValue(mockEmails);
-    (sendNotificationEmails as jest.Mock).mockResolvedValue(undefined);
+    const mockRegistrations = [
+      {
+        email: 'test@example.com',
+        relatedProduct: { sys: { type: 'Link', linkType: 'Entry', id: 'p1' } },
+        entryId: 'e1',
+        language: 'en' as const,
+      },
+    ];
+    (fetchEmailRegistrations as jest.Mock).mockResolvedValue(mockRegistrations);
+    (sendNotificationEmails as jest.Mock).mockResolvedValue({ sent: 1, failed: 0, skippedEmpty: 0 });
 
     const { req, res } = createMocks({
       method: 'POST',
@@ -72,7 +91,7 @@ describe('Webhook Handler', () => {
         sys: { id: '123' },
         fields: {
           inStock: { 'en-US': true },
-          productNameDutch: { 'en-US': 'Test Product' },
+          ...fullProductNames,
         },
       },
     });
@@ -80,14 +99,55 @@ describe('Webhook Handler', () => {
     await handler(req as unknown as VercelRequest, res as unknown as VercelResponse);
 
     expect(fetchEmailRegistrations).toHaveBeenCalledWith('123');
-    expect(sendNotificationEmails).toHaveBeenCalledWith(
-      mockEmails,
-      'Test Product'
-    );
+    expect(sendNotificationEmails).toHaveBeenCalledWith(mockRegistrations, {
+      en: 'Test EN',
+      nl: 'Test NL',
+      pt: 'Test PT',
+      de: 'Test DE',
+    });
     expect(res._getStatusCode()).toBe(200);
     expect(JSON.parse(res._getData())).toEqual({
-      message: 'Emails sent successfully',
+      message: 'Notification email(s) handed off to mail server',
+      queued: 1,
+      sent: 1,
+      failed: 0,
+      skippedEmpty: 0,
     });
+  });
+
+  it('should process webhook when only Dutch and English names exist (PT/DE fall back to EN)', async () => {
+    const mockRegistrations = [
+      {
+        email: 'test@example.com',
+        relatedProduct: { sys: { type: 'Link', linkType: 'Entry', id: 'p1' } },
+        entryId: 'e1',
+        language: 'pt' as const,
+      },
+    ];
+    (fetchEmailRegistrations as jest.Mock).mockResolvedValue(mockRegistrations);
+    (sendNotificationEmails as jest.Mock).mockResolvedValue({ sent: 1, failed: 0, skippedEmpty: 0 });
+
+    const { req, res } = createMocks({
+      method: 'POST',
+      body: {
+        sys: { id: '123' },
+        fields: {
+          inStock: { 'en-US': true },
+          ...nlEnOnlyNames,
+        },
+      },
+    });
+
+    await handler(req as unknown as VercelRequest, res as unknown as VercelResponse);
+
+    expect(sendNotificationEmails).toHaveBeenCalledWith(mockRegistrations, {
+      en: 'Test EN',
+      nl: 'Test NL',
+      pt: 'Test EN',
+      de: 'Test EN',
+    });
+    expect(res._getStatusCode()).toBe(200);
+    expect(JSON.parse(res._getData()).sent).toBe(1);
   });
 
   it('should handle errors during processing', async () => {
@@ -101,6 +161,7 @@ describe('Webhook Handler', () => {
         sys: { id: '123' },
         fields: {
           inStock: { 'en-US': true },
+          ...fullProductNames,
         },
       },
     });
