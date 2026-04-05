@@ -8,6 +8,11 @@ import emailTemplates from '../locales/emailTemplates.json';
 
 dotenv.config();
 
+/** Contentful environment id (`master`, `staging`, …). Default `master`. */
+function contentfulEnvironmentId(): string {
+  return process.env.CONTENTFUL_ENVIRONMENT_ID?.trim() || 'master';
+}
+
 /** Must match Content model → Email registration → API identifier (default `emailRegistration`). */
 function emailRegistrationContentTypeId(): string {
   return process.env.CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID?.trim() || 'emailRegistration';
@@ -36,7 +41,8 @@ export async function fetchEmailRegistrations(productId: string): Promise<EmailR
     throw new Error('Missing CONTENTFUL_SPACE_ID or CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API in .env');
   }
 
-  const base = `https://api.contentful.com/spaces/${spaceId}/environments/master/entries`;
+  const envId = contentfulEnvironmentId();
+  const base = `https://api.contentful.com/spaces/${spaceId}/environments/${encodeURIComponent(envId)}/entries`;
   /** Standard CMA relational query (preferred). */
   const byReference = `content_type=${encodeURIComponent(ct)}&fields.${refField}.sys.id=${encodeURIComponent(productId)}`;
   /** Incoming links (do not combine with `content_type`). */
@@ -243,8 +249,9 @@ export async function deleteEmailRegistration(entryId: string) {
   const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API;
 
   try {
+    const envId = contentfulEnvironmentId();
     const response = await fetch(
-      `https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${entryId}`,
+      `https://api.contentful.com/spaces/${spaceId}/environments/${encodeURIComponent(envId)}/entries/${entryId}`,
       {
         method: 'DELETE',
         headers: {
