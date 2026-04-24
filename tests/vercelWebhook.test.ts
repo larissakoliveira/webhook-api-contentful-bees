@@ -107,6 +107,7 @@ describe('Webhook Handler', () => {
     });
     expect(res._getStatusCode()).toBe(200);
     expect(JSON.parse(res._getData())).toEqual({
+      productId: '123',
       message: 'Notification email(s) handed off to mail server',
       queued: 1,
       sent: 1,
@@ -169,8 +170,33 @@ describe('Webhook Handler', () => {
     await handler(req as unknown as VercelRequest, res as unknown as VercelResponse);
 
     expect(res._getStatusCode()).toBe(500);
-    expect(JSON.parse(res._getData())).toEqual({
-      message: 'Error processing webhook',
+    const errBody = JSON.parse(res._getData());
+    expect(errBody.message).toBe('Error processing webhook');
+    expect(errBody.detail).toBe('Test error');
+  });
+
+  it('should return 200 with hint when no registrations', async () => {
+    (fetchEmailRegistrations as jest.Mock).mockResolvedValue([]);
+    (sendNotificationEmails as jest.Mock).mockResolvedValue({ sent: 0, failed: 0, skippedEmpty: 0 });
+
+    const { req, res } = createMocks({
+      method: 'POST',
+      body: {
+        sys: { id: 'prod-xyz' },
+        fields: {
+          inStock: { 'en-US': true },
+          ...fullProductNames,
+        },
+      },
     });
+
+    await handler(req as unknown as VercelRequest, res as unknown as VercelResponse);
+
+    expect(res._getStatusCode()).toBe(200);
+    const body = JSON.parse(res._getData());
+    expect(body.productId).toBe('prod-xyz');
+    expect(body.queued).toBe(0);
+    expect(body.message).toBe('No notify-me signups for this product');
+    expect(body.hint).toContain('CONTENTFUL_SPACE_ID');
   });
 });

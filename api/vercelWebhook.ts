@@ -57,6 +57,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     logger.info('Notification send finished', { productId, ...sendResult });
 
     return res.status(200).json({
+      productId,
       message:
         emailRegistrations.length === 0
           ? 'No notify-me signups for this product'
@@ -65,6 +66,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             : 'No emails delivered (check Gmail credentials / logs; see sent, failed)',
       queued: emailRegistrations.length,
       ...sendResult,
+      ...(emailRegistrations.length === 0
+        ? {
+            hint:
+              'Signups are per product entry. In Contentful, open an Email registration entry and confirm its product reference points to this productId. On Vercel, bee-app and this webhook must share the same CONTENTFUL_SPACE_ID and environment (master vs staging), and CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID must match the signup content type API id.',
+          }
+        : {}),
     });
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);

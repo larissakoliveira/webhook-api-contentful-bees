@@ -99,7 +99,7 @@ export async function fetchEmailRegistrations(productId: string): Promise<EmailR
 
     // `fields.<ref>.sys.id` can return 200 with 0 items when the Reference field is localized (use locale in path).
     if ((registrationData.items?.length ?? 0) === 0) {
-      for (const loc of ['en-US', 'nl'] as const) {
+      for (const loc of ['en-US', 'nl', 'nl-NL', 'de-DE', 'pt-BR', 'en'] as const) {
         const byRefLocale = `content_type=${encodeURIComponent(ct)}&fields.${refField}.${encodeURIComponent(loc)}.sys.id=${encodeURIComponent(productId)}`;
         const next = await fetchList(byRefLocale, `content_type+fields.${refField}.${loc}`);
         if (next && (next.items?.length ?? 0) > 0) {
