@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/webhook",
+      "destination": "/api/vercelWebhook"
+    },
+    {
+      "source": "/register-email",
+      "destination": "/api/registerEmail"
+    }
+  ]
+}

@@ -8,6 +8,6 @@
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true
     },
-    "include": ["api/**/*.ts", "api/vercelWebhook.ts"]
+    "include": ["api/**/*.ts", "utils/**/*.ts", "types/**/*.ts", "tests/**/*.ts"]
   }
   
