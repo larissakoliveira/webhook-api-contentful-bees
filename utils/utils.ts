@@ -66,10 +66,13 @@ export async function fetchEmailRegistrations(productId: string): Promise<EmailR
 
     type CmaListPayload = { items?: unknown[] };
 
+    let lastCmaFailure = '';
+
     const fetchList = async (query: string, label: string): Promise<CmaListPayload | null> => {
       const res = await fetch(`${base}?${query}`, { headers });
       const bodyPreview = await res.clone().text();
       if (!res.ok) {
+        lastCmaFailure = `${label} → HTTP ${res.status}: ${bodyPreview.slice(0, 350)}`;
         console.warn(`[fetchEmailRegistrations] ${label}`, res.status, bodyPreview.slice(0, 400));
         return null;
       }
@@ -89,7 +92,8 @@ export async function fetchEmailRegistrations(productId: string): Promise<EmailR
     }
     if (!registrationData) {
       throw new Error(
-        'Contentful CMA: could not list email registrations (token, space id, or field ids may be wrong). Check server logs.'
+        'Contentful CMA: could not list email registrations. Verify Vercel env CONTENTFUL_SPACE_ID, CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API, CONTENTFUL_ENVIRONMENT_ID, CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID. ' +
+          (lastCmaFailure ? `Last error: ${lastCmaFailure}` : '')
       );
     }
 

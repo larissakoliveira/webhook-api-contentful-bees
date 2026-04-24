@@ -67,10 +67,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ...sendResult,
     });
   } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
     logger.error('Error processing webhook', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: detail,
       stack: error instanceof Error ? error.stack : undefined
     });
-    return res.status(500).json({ message: 'Error processing webhook' });
+    return res.status(500).json({
+      message: 'Error processing webhook',
+      detail: detail.slice(0, 800),
+    });
   }
 }

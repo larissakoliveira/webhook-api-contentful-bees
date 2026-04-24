@@ -7,7 +7,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app: Application = express();
-const PORT = 3000;
+const PORT = (() => {
+  const n = Number(process.env.PORT);
+  return Number.isFinite(n) && n > 0 ? n : 3000;
+})();
 
 app.use(express.json());
 
