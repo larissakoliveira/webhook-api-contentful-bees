@@ -3,6 +3,8 @@
  * Mirrors bee-app field shape so the webhook can reuse the same Contentful model.
  */
 
+import { getEmailRegistrationContentTypeId } from './emailRegistrationEnv';
+
 export type RegisterEmailParams = {
   email: string;
   productId: string;
@@ -15,10 +17,6 @@ export type RegisterEmailResult =
 
 function contentfulEnvironmentId(): string {
   return process.env.CONTENTFUL_ENVIRONMENT_ID?.trim() || 'master';
-}
-
-function emailRegistrationContentTypeId(): string {
-  return process.env.CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID?.trim() || 'emailRegistration';
 }
 
 function emailFieldId(): string {
@@ -47,7 +45,7 @@ export async function createEmailRegistrationViaCma(params: RegisterEmailParams)
   }
 
   const envId = contentfulEnvironmentId();
-  const ct = emailRegistrationContentTypeId();
+  const ct = getEmailRegistrationContentTypeId();
   const locale = registrationLocale();
   const emailField = emailFieldId();
   const languageField = languageFieldId();

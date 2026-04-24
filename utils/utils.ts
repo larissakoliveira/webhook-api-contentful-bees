@@ -1,4 +1,5 @@
 import { EmailRegistration, productNameLanguage } from '../types/types';
+import { getEmailRegistrationContentTypeId } from './emailRegistrationEnv';
 import { firstLocale } from './contentfulWebhookFields';
 import fs from 'fs';
 import nodemailer from 'nodemailer';
@@ -15,7 +16,7 @@ function contentfulEnvironmentId(): string {
 
 /** Must match Content model → Email registration → API identifier (default `emailRegistration`). */
 function emailRegistrationContentTypeId(): string {
-  return process.env.CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID?.trim() || 'emailRegistration';
+  return getEmailRegistrationContentTypeId();
 }
 
 /** Must match the Reference field API ID only — e.g. `relatedProduct`, not `relatedProduct.en-US`. */

@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { getEmailRegistrationContentTypeId } from '../utils/emailRegistrationEnv';
 import { countEntriesLinkingToProduct, fetchEmailRegistrations, sendNotificationEmails } from '../utils/utils';
 import { isInStockTrue, localizedString, resolveProductNames } from '../utils/contentfulWebhookFields';
 import { WebhookPayload, productNameLanguage } from '../types/types';
@@ -51,8 +52,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       logger.info('No email registrations linked to this product; nothing to send', {
         productId,
         linkProbe,
-        contentTypeIdUsed:
-          process.env.CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID?.trim() || 'emailRegistration (default)',
+        contentTypeIdUsed: getEmailRegistrationContentTypeId(),
       });
     }
 
@@ -77,10 +77,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ...(emailRegistrations.length === 0
         ? {
             hint:
-              'Signups are per product entry. In Contentful, open an Email registration entry and confirm its product reference points to this productId. On Vercel, bee-app and this webhook must share the same CONTENTFUL_SPACE_ID and environment (master vs staging), and CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID must match the signup content type API id.',
+              'Signups are per product entry. In Contentful, open an Email registration entry and confirm its product reference points to this productId. On Vercel, bee-app and this webhook must share the same CONTENTFUL_SPACE_ID and environment (master vs staging), and the email-registration content type id must match (bee-app: VITE_CONTENTFUL_*; webhook: CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID or VITE_CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID).',
             diagnostic: {
-              webhookContentTypeId:
-                process.env.CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID?.trim() || 'emailRegistration (default)',
+              webhookContentTypeId: getEmailRegistrationContentTypeId(),
               webhookEnvironment: process.env.CONTENTFUL_ENVIRONMENT_ID?.trim() || 'master',
               webhookRelatedProductField:
                 (process.env.CONTENTFUL_EMAIL_RELATED_PRODUCT_FIELD_ID || 'relatedProduct').split('.')[0],
@@ -89,10 +88,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               contentTypesAmongThose: linkProbe?.ok ? linkProbe.contentTypeIds : [],
               cmaLinkProbeHttpStatus: linkProbe && !linkProbe.ok ? linkProbe.status ?? 'error' : undefined,
               explain:
-                linkProbe?.ok && linkProbe.count > 0 && !linkProbe.contentTypeIds.includes(
-                  process.env.CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID?.trim() || 'emailRegistration'
-                )
-                  ? 'Entries link to this product but none use CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID — set it to eMailRegistration (your model API id) on this webhook project and redeploy.'
+                linkProbe?.ok &&
+                linkProbe.count > 0 &&
+                !linkProbe.contentTypeIds.includes(getEmailRegistrationContentTypeId())
+                  ? 'Entries link to this product but none match the configured email-registration content type id — set CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID (or VITE_CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID) to your model API id (e.g. eMailRegistration) on this webhook project and redeploy.'
                   : linkProbe?.ok && linkProbe.count === 0
                     ? 'CMA found no entries linking to this product id — the Related product reference on your signup entry may be empty, wrong product, or wrong space/environment on the webhook.'
                     : undefined,
