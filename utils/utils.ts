@@ -31,6 +31,45 @@ function relatedProductFieldId(): string {
   return base;
 }
 
+/**
+ * How many entries (any content type) reference this product via CMA `links_to_entry`.
+ * Used when the webhook finds 0 signups — if count > 0 but types omit the expected email type, env `CONTENTFUL_EMAIL_REGISTRATION_CONTENT_TYPE_ID` is wrong.
+ */
+export async function countEntriesLinkingToProduct(productId: string): Promise<{
+  ok: boolean;
+  count: number;
+  contentTypeIds: string[];
+  status?: number;
+}> {
+  const spaceId = process.env.CONTENTFUL_SPACE_ID?.trim();
+  const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API?.trim();
+  if (!spaceId || !accessToken) {
+    return { ok: false, count: 0, contentTypeIds: [] };
+  }
+  const envId = contentfulEnvironmentId();
+  const base = `https://api.contentful.com/spaces/${spaceId}/environments/${encodeURIComponent(envId)}/entries`;
+  const query = `links_to_entry=${encodeURIComponent(productId)}&limit=100`;
+  try {
+    const res = await fetch(`${base}?${query}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!res.ok) {
+      return { ok: false, count: 0, contentTypeIds: [], status: res.status };
+    }
+    const data = (await res.json()) as {
+      items?: { sys?: { contentType?: { sys?: { id?: string } } } }[];
+    };
+    const items = data.items ?? [];
+    const contentTypeIds = [...new Set(items.map((i) => i.sys?.contentType?.sys?.id).filter(Boolean))] as string[];
+    return { ok: true, count: items.length, contentTypeIds };
+  } catch {
+    return { ok: false, count: 0, contentTypeIds: [] };
+  }
+}
+
 export async function fetchEmailRegistrations(productId: string): Promise<EmailRegistration[]> {
   const spaceId = process.env.CONTENTFUL_SPACE_ID;
   const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN_MANAGEMENT_API;
